@@ -5,7 +5,7 @@ from typing import Optional
 from create_table import create_tables
 import psycopg2
 
-create_tables()
+
 
 console = Console()
 
@@ -22,6 +22,7 @@ def start():
 	typer.secho(f'''Welcome to Library CLI!\n\n
 		You can execute command '--help' to see the possible commands''', fg=typer.colors.GREEN)
 	# TODO: connect to database
+	create_tables()
 	
 	
 
