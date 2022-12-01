@@ -2,6 +2,9 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from typing import Optional
+from create_table import create_tables
+
+create_tables()
 
 console = Console()
 
