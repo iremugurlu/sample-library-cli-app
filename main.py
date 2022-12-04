@@ -4,7 +4,10 @@ from rich.table import Table
 from typing import Optional
 from create_table import create_tables
 import psycopg2
+import json
 
+with open('books.json', 'r') as f:
+	books = json.load(f)
 
 
 console = Console()
