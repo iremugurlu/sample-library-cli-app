@@ -194,7 +194,43 @@ def recently_added(genre: Optional[str]= typer.Argument(None)):
 	cur.close()
 	conn.commit()
 
-##############################################################################################
+#############################################################################################88888888888888888888888888
+@app.command("most_favorite_books")
+def most_favorite_books(genre: Optional[str]= typer.Argument(None)):
+	cur = conn.cursor()
+	if genre is None:
+		postgres_select_query = f"""select ac.book_id, b.title, b.author, b.genre, count(fav) from user_action ac, books b where ac.book_id  = b.book_id and fav = 'true'  group by ac.book_id , b.title, b.author, b.genre order by count(fav) desc limit 10;"""
+		cur.execute(postgres_select_query)
+
+	else:
+		postgres_select_query = f"""select ac.book_id, b.title, b.author, b.genre, count(fav) from user_action ac, books b where ac.book_id  = b.book_id and fav = 'true' and genre =  '{genre}' group by ac.book_id , b.title, b.author, b.genre order by count(fav) desc limit 10;"""
+		cur.execute(postgres_select_query)
+
+	display_table(cur)
+	cur.close()
+	conn.commit()
+	
+#################################################################################################################14 14 14 14 14 14
+@app.command("mark_reading")
+def mark_reading(book_id: int, user_name: str):
+	cur = conn.cursor()
+	
+	postgres_select_query = f"""select book_id , user_name from user_action where book_id = '{book_id}' and user_name = '{user_name}' """
+
+	cur.execute(postgres_select_query)
+
+	q1 = cur.fetchone()
+	if q1 is not None:
+		postgres_update_query = f"""update user_action set reading = 'true' where book_id = '{book_id}' and user_name = '{user_name}' """
+		cur.execute(postgres_update_query)
+		typer.echo(f"You marked book {book_id} as reading!")
+		
+	else:
+		typer.echo(f"Check user_name or book_id as this combination doesn't exist!")
+	
+	cur.close()
+	conn.commit()
+#########################################################################################################################
 
 
 if __name__ == "__main__":
