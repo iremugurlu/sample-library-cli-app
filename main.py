@@ -6,9 +6,6 @@ from create_table import create_tables
 import psycopg2
 import json
 
-
-
-
 console = Console()
 
 app = typer.Typer()
@@ -90,28 +87,40 @@ def mark_read(book_id,username):
 def my_books(username):
 	typer.echo(f"BOOKS YOU READ")
 	cur = conn.cursor()
-	postgres_select_query = f""" SELECT * FROM user_action where user_name='{username}' and read=true"""
+	postgres_select_query = f""" select DISTINCT ON (b.book_id) ROW_NUMBER () OVER (ORDER BY b.book_id) as "#",
+			b.book_id as "Book ID", b.title as "Name", b.author as "Author", b.pages as "# Pages",
+			b.genre as "Genre",  b.quantity > 0 as "Availability" from books b join 
+			user_action u on b.book_id=u.book_id where u.user_name='{username}' and u.read=true ORDER BY b.book_id"""
 	cur.execute(postgres_select_query)
 	display_table(cur)
 	cur.close()
 	conn.commit()
 	typer.echo(f"BOOKS YOU ARE READING")
 	cur = conn.cursor()
-	postgres_select_query = f""" SELECT * FROM user_action WHERE user_name='{username}' and reading=true"""
+	postgres_select_query = f""" select DISTINCT ON (b.book_id) ROW_NUMBER () OVER (ORDER BY b.book_id) as "#",
+			b.book_id as "Book ID", b.title as "Name", b.author as "Author", b.pages as "# Pages",
+			b.genre as "Genre",  b.quantity > 0 as "Availability" from books b join 
+			user_action u on b.book_id=u.book_id where u.user_name='{username}' and u.reading=true ORDER BY b.book_id"""
 	cur.execute(postgres_select_query)
 	display_table(cur)
 	cur.close()
 	conn.commit()
 	typer.echo(f"BOOKS YOU WILL READ")
 	cur = conn.cursor()
-	postgres_select_query = f""" SELECT * FROM user_action WHERE user_name='{username}' and will_read=true"""
+	postgres_select_query = f""" select DISTINCT ON (b.book_id) ROW_NUMBER () OVER (ORDER BY b.book_id) as "#",
+			b.book_id as "Book ID", b.title as "Name", b.author as "Author", b.pages as "# Pages",
+			b.genre as "Genre",  b.quantity > 0 as "Availability" from books b join 
+			user_action u on b.book_id=u.book_id where u.user_name='{username}' and u.will_read=true ORDER BY b.book_id"""
 	cur.execute(postgres_select_query)
 	display_table(cur)
 	cur.close()
 	conn.commit()
 	typer.echo(f"YOUR FAVORITE BOOKS")
 	cur = conn.cursor()
-	postgres_select_query = f""" SELECT * FROM user_action WHERE user_name='{username}' and fav=true"""
+	postgres_select_query = f""" select DISTINCT ON (b.book_id) ROW_NUMBER () OVER (ORDER BY b.book_id) as "#",
+			b.book_id as "Book ID", b.title as "Name", b.author as "Author", b.pages as "# Pages",
+			b.genre as "Genre",  b.quantity > 0 as "Availability" from books b join 
+			user_action u on b.book_id=u.book_id where u.user_name='{username}' and u.fav=true ORDER BY b.book_id"""
 	cur.execute(postgres_select_query)
 	display_table(cur)
 	cur.close()
