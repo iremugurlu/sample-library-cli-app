@@ -143,6 +143,60 @@ def display_table(cursor):
 		table.add_row(*ll)	
 	console.print(table)
 
+
+###################################################################################33333333333333333333333
+
+@app.command("add_book")
+def add_book():
+	typer.echo(f"Please provide book detail!")
+	cur = conn.cursor()
+	title = input ("Title: ")
+	author = input ("Author: ")
+	pages = input ("No. of pages: ")
+	genre = input ("Genre: ")
+	quantity= int(input ("Quantity: "))
+
+	postgres_select_query = f"""select quantity from books where title = '{title}' and author = '{author}' """
+
+	cur.execute(postgres_select_query)
+
+	q1 = cur.fetchone()
+	if q1 is not None:
+		q2 = q1[0]
+		updated_quantity = q2+ quantity
+		postgres_update_query = f"""update books set quantity = '{updated_quantity}'  where title = '{title}' and author = '{author}' """
+		cur.execute(postgres_update_query)
+		typer.echo(f"Successfully updated book's quantity!")
+	
+	else:
+		postgres_insert_query = f""" INSERT INTO books (title,author,genre,pages,quantity) VALUES ('{title}','{author}','{genre}','{pages}','{quantity}')"""
+		cur.execute(postgres_insert_query)
+		typer.echo(f"Successfully added book!")
+	
+	cur.close()
+	conn.commit()
+
+##################################################################################################66666666666666666
+
+@app.command("recently_added")
+def recently_added(genre: Optional[str]= typer.Argument(None)):
+	cur = conn.cursor()
+	if genre is None:
+		postgres_select_query = f"""select * from books  order by added_date desc limit 5;"""
+		cur.execute(postgres_select_query)
+    
+	
+	else:
+		postgres_select_query = f"""select * from books where genre =  '{genre}'  order by added_date desc limit 5;"""
+		cur.execute(postgres_select_query)
+
+	display_table(cur)
+	cur.close()
+	conn.commit()
+
+##############################################################################################
+
+
 if __name__ == "__main__":
 	app()
 	
