@@ -18,25 +18,7 @@ conn = psycopg2.connect(
 	database="library",
 	user="postgres",
 	password="postgres")
-
-with open('books.json', 'r') as f:
-	books = json.load(f)
-for i in books:
-	cur = conn.cursor()
-	title = i['title']
-	author = i ["authors"][0]
-	pages = i['pageCount']
-	genre = i["categories"][0]
-	quantity= 1
-	postgres_select_query = f"""select quantity from books where title = '{title}' and author = '{author}' """
-	cur.execute(postgres_select_query)
-	q1 = cur.fetchone()
-	if q1 is None:
-		postgres_insert_query = f""" INSERT INTO books (title,author,genre,pages,quantity) VALUES ('{title}','{author}','{genre}','{pages}','{quantity}')"""
-		cur.execute(postgres_insert_query)
-		cur.close()
-		conn.commit()
-user_name=''	
+	
 
 @app.command("start")
 def start():
@@ -45,13 +27,29 @@ def start():
 	# TODO: connect to database
 	create_tables()
 	
+	with open('books.json', 'r') as f:
+		books = json.load(f)
+	for i in books:
+		cur = conn.cursor()
+		title = i['title']
+		author = i ["authors"][0]
+		pages = i['pageCount']
+		genre = i["categories"][0]
+		quantity= 1
+		postgres_select_query = f"""select quantity from books where title = '{title}' and author = '{author}' """
+		cur.execute(postgres_select_query)
+		q1 = cur.fetchone()
+		if q1 is None:
+			postgres_insert_query = f""" INSERT INTO books (title,author,genre,pages,quantity) VALUES ('{title}','{author}','{genre}','{pages}','{quantity}')"""
+			cur.execute(postgres_insert_query)
+			cur.close()
+			conn.commit()
+	
 	
 
 # This is how you can get arguments, here username is a mandatory argument for this command.
 @app.command("sign_up")
 def sign_up(username: str):
-	global user_name
-	user_name=username
 	typer.echo(f"Nice that you are signing up!")
 	# TODO: Add user with name {username} to database table
 	cur = conn.cursor()
@@ -73,12 +71,13 @@ def search_by_author(author):
 	conn.commit()
  
 @app.command("mark_read")
-def mark_read(book_id):
+def mark_read(username,book_id):
 	cur = conn.cursor()
-	postgres_insert_query = f""" INSERT INTO user_action (user_name) VALUES ('{username}')"""
+	postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,read) VALUES ('{username}','{book_id}',true)"""
 	cur.execute(postgres_insert_query)
 	cur.close()
 	conn.commit()
+	typer.echo(f"{username} marked this book as 'read'.")
 	
  
 # Example function for tables, you can add more columns/row.
