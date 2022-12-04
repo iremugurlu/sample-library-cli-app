@@ -26,7 +26,6 @@ def start():
 		You can execute command '--help' to see the possible commands''', fg=typer.colors.GREEN)
 	# TODO: connect to database
 	create_tables()
-	
 	with open('books.json', 'r') as f:
 		books = json.load(f)
 	for i in books:
@@ -44,8 +43,6 @@ def start():
 			cur.execute(postgres_insert_query)
 			cur.close()
 			conn.commit()
-	
-	
 
 # This is how you can get arguments, here username is a mandatory argument for this command.
 @app.command("sign_up")
@@ -70,14 +67,56 @@ def search_by_author(author):
 	cur.close()
 	conn.commit()
  
+@app.command("fav_book")
+def fav_book(book_id,username):
+	cur = conn.cursor()
+	postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,fav) VALUES ('{username}','{book_id}',true)"""
+	cur.execute(postgres_insert_query)
+	cur.close()
+	conn.commit()
+	typer.echo(f"{username} added book {book_id} to your favorites! '.")
+ 
+
 @app.command("mark_read")
-def mark_read(username,book_id):
+def mark_read(book_id,username):
 	cur = conn.cursor()
 	postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,read) VALUES ('{username}','{book_id}',true)"""
 	cur.execute(postgres_insert_query)
 	cur.close()
 	conn.commit()
-	typer.echo(f"{username} marked this book as 'read'.")
+	typer.echo(f"{username} marked book {book_id} as 'read'.")
+ 
+@app.command("my_books")
+def my_books(username):
+	typer.echo(f"BOOKS YOU READ")
+	cur = conn.cursor()
+	postgres_select_query = f""" SELECT * FROM user_action where user_name='{username}' and read=true"""
+	cur.execute(postgres_select_query)
+	display_table(cur)
+	cur.close()
+	conn.commit()
+	typer.echo(f"BOOKS YOU ARE READING")
+	cur = conn.cursor()
+	postgres_select_query = f""" SELECT * FROM user_action WHERE user_name='{username}' and reading=true"""
+	cur.execute(postgres_select_query)
+	display_table(cur)
+	cur.close()
+	conn.commit()
+	typer.echo(f"BOOKS YOU WILL READ")
+	cur = conn.cursor()
+	postgres_select_query = f""" SELECT * FROM user_action WHERE user_name='{username}' and will_read=true"""
+	cur.execute(postgres_select_query)
+	display_table(cur)
+	cur.close()
+	conn.commit()
+	typer.echo(f"YOUR FAVORITE BOOKS")
+	cur = conn.cursor()
+	postgres_select_query = f""" SELECT * FROM user_action WHERE user_name='{username}' and fav=true"""
+	cur.execute(postgres_select_query)
+	display_table(cur)
+	cur.close()
+	conn.commit()
+	
 	
  
 # Example function for tables, you can add more columns/row.
