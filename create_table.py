@@ -21,7 +21,7 @@ def create_tables():
 		""" CREATE TABLE IF NOT EXISTS public.user_action
 (
     action_id serial NOT NULL,
-    user_id integer NOT NULL,
+    user_name character varying(100) NOT NULL,
     book_id integer NOT NULL,
     borrow boolean DEFAULT false,
     reading boolean DEFAULT false,
@@ -33,9 +33,8 @@ def create_tables():
 		""",
  		"""CREATE TABLE IF NOT EXISTS public.users
 (
-    user_id serial NOT NULL,
     user_name character varying(100) NOT NULL,
-    CONSTRAINT pk_user_id PRIMARY KEY (user_id),
+    CONSTRAINT pk_user_name PRIMARY KEY (user_name),
     CONSTRAINT uk_user_name UNIQUE (user_name)
 )
   """,
@@ -45,8 +44,8 @@ def create_tables():
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;""",
 	"""ALTER TABLE IF EXISTS public.user_action
-    ADD FOREIGN KEY (user_id)
-    REFERENCES public.users (user_id) MATCH SIMPLE
+    ADD FOREIGN KEY (user_name)
+    REFERENCES public.users (user_name) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

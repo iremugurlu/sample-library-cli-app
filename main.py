@@ -36,7 +36,7 @@ for i in books:
 		cur.execute(postgres_insert_query)
 		cur.close()
 		conn.commit()
-	
+user_name=''	
 
 @app.command("start")
 def start():
@@ -50,6 +50,8 @@ def start():
 # This is how you can get arguments, here username is a mandatory argument for this command.
 @app.command("sign_up")
 def sign_up(username: str):
+	global user_name
+	user_name=username
 	typer.echo(f"Nice that you are signing up!")
 	# TODO: Add user with name {username} to database table
 	cur = conn.cursor()
@@ -64,9 +66,17 @@ def search_by_author(author):
 	cur = conn.cursor()
 	postgres_select_query = f"""select ROW_NUMBER () OVER (ORDER BY book_id) as "#",
  							book_id as "Book ID", title as "Name", author as "Author", pages as "# Pages",
-        					genre as "Genre",  quantity > 0 as "Availability" from books where  author LIKE '{author}%' """
+							genre as "Genre",  quantity > 0 as "Availability" from books where  author LIKE '{author}%' """
 	cur.execute(postgres_select_query)
-	display_table(cursor=cur)
+	display_table(cur)
+	cur.close()
+	conn.commit()
+ 
+@app.command("mark_read")
+def mark_read(book_id):
+	cur = conn.cursor()
+	postgres_insert_query = f""" INSERT INTO user_action (user_name) VALUES ('{username}')"""
+	cur.execute(postgres_insert_query)
 	cur.close()
 	conn.commit()
 	
@@ -74,20 +84,16 @@ def search_by_author(author):
 # Example function for tables, you can add more columns/row.
 @app.command("display_table")
 
-def display_table(cursor):
-	
+def display_table(cursor):	
 	table = Table(show_header=True, header_style="bold blue")
-
 	column_names=[desc[0] for desc in cursor.description]
 	for c in column_names:
 		table.add_column(c, style="dim", min_width=10, justify=True)
-
 	for d in cursor.fetchall():
 		ll=[]
 		for i in d:
 			ll.append(f"{i}")  
-		table.add_row(*ll)
-	
+		table.add_row(*ll)	
 	console.print(table)
 
 if __name__ == "__main__":
