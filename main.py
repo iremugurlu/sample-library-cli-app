@@ -232,6 +232,25 @@ def mark_reading(book_id: int, user_name: str):
 	conn.commit()
 #########################################################################################################################
 
+@app.command("statistics")
+def statistics(user_name: str):
+	cur = conn.cursor()
+	
+	postgres_select_query = f"""select count(read), count(distinct (b.author)), count(distinct(b.genre)), sum(b.pages)from user_action ac, books b where ac.book_id = b.book_id and read = 'true' and ac.user_name = '{user_name}'; """
+	cur.execute(postgres_select_query)
+	q=(cur.fetchall())
+
+	table = Table(show_header=True, header_style="bold blue")
+	table.add_column("Statistic", style="dim", width=30)
+	table.add_column("Number", style="dim", min_width=10, justify=True)
+	
+	table.add_row('Books you read', str(q[0][0]))
+	table.add_row('Authors you read', str(q[0][1]))
+	table.add_row('Genres you read', str(q[0][2]))
+	table.add_row('Total pages you read', str(q[0][3]))
+	console.print(table)
+
+
 
 if __name__ == "__main__":
 	app()
