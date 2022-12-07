@@ -64,24 +64,61 @@ def search_by_author(author):
 	cur.close()
 	conn.commit()
  
+
 @app.command("fav_book")
-def fav_book(book_id,username):
+def fav_book(book_id: int, user_name: str):
 	cur = conn.cursor()
-	postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,fav) VALUES ('{username}','{book_id}',true)"""
-	cur.execute(postgres_insert_query)
+	
+	postgres_select_query = f"""select book_id , user_name from user_action where book_id = '{book_id}' and user_name = '{user_name}' """
+	cur.execute(postgres_select_query)
+
+	q1 = cur.fetchone()
+	if q1 is not None:
+		postgres_update_query = f"""update user_action set fav = 'true' where book_id = '{book_id}' and user_name = '{user_name}' """
+		cur.execute(postgres_update_query)
+		typer.echo(f"You added book {book_id} to your favorites!'")
+		
+	else:
+		postgres_select_query = f"""select u.user_name, b.book_id from users u , books b  where b.book_id = '{book_id}' and u.user_name = '{user_name}' """
+		cur.execute(postgres_select_query)
+		q1 = cur.fetchone()
+		if q1 is not None:
+			postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,fav) VALUES ('{user_name}','{book_id}',true)"""
+			cur.execute(postgres_insert_query)
+			typer.echo(f"You added book {book_id} to your favorites!'")
+		else:
+			typer.echo(f"Sorry, user name or book id is incorrect!")
+	
 	cur.close()
 	conn.commit()
-	typer.echo(f"{username} added book {book_id} to your favorites! '.")
  
 
 @app.command("mark_read")
-def mark_read(book_id,username):
+def mark_read(book_id: int, user_name: str):
 	cur = conn.cursor()
-	postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,read) VALUES ('{username}','{book_id}',true)"""
-	cur.execute(postgres_insert_query)
+	
+	postgres_select_query = f"""select book_id , user_name from user_action where book_id = '{book_id}' and user_name = '{user_name}' """
+	cur.execute(postgres_select_query)
+
+	q1 = cur.fetchone()
+	if q1 is not None:
+		postgres_update_query = f"""update user_action set read = 'true' where book_id = '{book_id}' and user_name = '{user_name}' """
+		cur.execute(postgres_update_query)
+		typer.echo(f"You marked book {book_id} as read!")
+		
+	else:
+		postgres_select_query = f"""select u.user_name, b.book_id from users u , books b  where b.book_id = '{book_id}' and u.user_name = '{user_name}' """
+		cur.execute(postgres_select_query)
+		q1 = cur.fetchone()
+		if q1 is not None:
+			postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,read) VALUES ('{user_name}','{book_id}',true)"""
+			cur.execute(postgres_insert_query)
+			typer.echo(f"You marked book {book_id} as reading!")
+		else:
+			typer.echo(f"Sorry, user name or book id is incorrect!")
+	
 	cur.close()
 	conn.commit()
-	typer.echo(f"{username} marked book {book_id} as 'read'.")
  
 @app.command("my_books")
 def my_books(username):
@@ -182,12 +219,19 @@ def add_book():
 def recently_added(genre: Optional[str]= typer.Argument(None)):
 	cur = conn.cursor()
 	if genre is None:
-		postgres_select_query = f"""select * from books  order by added_date desc limit 5;"""
+		postgres_select_query = f"""
+select ROW_NUMBER () OVER (order by added_date desc) as "#", book_id as "Book ID", title as "Name", author as "Author", pages as "# Pages",
+							genre as "Genre", case when quantity> 0 then 'True'
+													when quantity = 0 then 'False' end "Availability"
+													from books order by added_date desc limit 5;"""
 		cur.execute(postgres_select_query)
     
 	
 	else:
-		postgres_select_query = f"""select * from books where genre =  '{genre}'  order by added_date desc limit 5;"""
+		postgres_select_query = f"""select ROW_NUMBER () OVER (order by added_date desc) as "#", book_id as "Book ID", title as "Name", author as "Author", pages as "# Pages",
+							genre as "Genre", case when quantity> 0 then 'True'
+													when quantity = 0 then 'False' end  "Availability"
+													from books where genre = '{genre}' order by added_date desc limit 5 ;"""
 		cur.execute(postgres_select_query)
 
 	display_table(cur)
@@ -199,11 +243,16 @@ def recently_added(genre: Optional[str]= typer.Argument(None)):
 def most_favorite_books(genre: Optional[str]= typer.Argument(None)):
 	cur = conn.cursor()
 	if genre is None:
-		postgres_select_query = f"""select ac.book_id, b.title, b.author, b.genre, count(fav) from user_action ac, books b where ac.book_id  = b.book_id and fav = 'true'  group by ac.book_id , b.title, b.author, b.genre order by count(fav) desc limit 10;"""
+		postgres_select_query = f"""select row_number() over(order by count(fav) desc) as "#",ac.book_id as "Book ID", b.title as "Name", b.author as "Author"
+								, b.genre  as "Genre", count(fav) as "Count"
+								from user_action ac, books b where ac.book_id  = b.book_id and fav = 'true'  group by ac.book_id , b.title, b.author, b.genre order by count(fav) desc limit 10;"""
 		cur.execute(postgres_select_query)
 
 	else:
-		postgres_select_query = f"""select ac.book_id, b.title, b.author, b.genre, count(fav) from user_action ac, books b where ac.book_id  = b.book_id and fav = 'true' and genre =  '{genre}' group by ac.book_id , b.title, b.author, b.genre order by count(fav) desc limit 10;"""
+		postgres_select_query = f"""select row_number() over(order by count(fav) desc) as "#",ac.book_id as "Book ID", b.title as "Name"
+								, b.author as "Author", b.genre  as "Genre", count(fav) as "Count"from user_action ac, books b 
+								where ac.book_id  = b.book_id and fav = 'true' and genre =  '{genre}' 
+								group by ac.book_id , b.title, b.author, b.genre order by count(fav) desc limit 10;"""
 		cur.execute(postgres_select_query)
 
 	display_table(cur)
@@ -216,7 +265,6 @@ def mark_reading(book_id: int, user_name: str):
 	cur = conn.cursor()
 	
 	postgres_select_query = f"""select book_id , user_name from user_action where book_id = '{book_id}' and user_name = '{user_name}' """
-
 	cur.execute(postgres_select_query)
 
 	q1 = cur.fetchone()
@@ -226,7 +274,15 @@ def mark_reading(book_id: int, user_name: str):
 		typer.echo(f"You marked book {book_id} as reading!")
 		
 	else:
-		typer.echo(f"Check user_name or book_id as this combination doesn't exist!")
+		postgres_select_query = f"""select u.user_name, b.book_id from users u , books b  where b.book_id = '{book_id}' and u.user_name = '{user_name}' """
+		cur.execute(postgres_select_query)
+		q1 = cur.fetchone()
+		if q1 is not None:
+			postgres_insert_query = f""" INSERT INTO user_action (user_name,book_id,reading) VALUES ('{user_name}','{book_id}',true)"""
+			cur.execute(postgres_insert_query)
+			typer.echo(f"You marked book {book_id} as reading!")
+		else:
+			typer.echo(f"Sorry, user name or book id is incorrect!")
 	
 	cur.close()
 	conn.commit()
