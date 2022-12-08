@@ -288,6 +288,7 @@ def mark_reading(book_id: int, user_name: str):
 	conn.commit()
 #########################################################################################################################
 
+
 @app.command("statistics")
 def statistics(user_name: str):
 	cur = conn.cursor()
@@ -305,6 +306,21 @@ def statistics(user_name: str):
 	table.add_row('Genres you read', str(q[0][2]))
 	table.add_row('Total pages you read', str(q[0][3]))
 	console.print(table)
+
+################################################################################################################
+
+@app.command("most_read_authors")
+def most_read_authors():
+	cur = conn.cursor()
+	
+	postgres_select_query = f"""select row_number() over(order by count(read) desc) as "#", b.author as "Author", count(read) as "Count"
+							from user_action ac, books b where ac.book_id  = b.book_id and read = 'true'  
+							group by  b.author order by count(read) desc limit 3;"""
+	cur.execute(postgres_select_query)
+
+	display_table(cur)
+	cur.close()
+	conn.commit()
 
 
 
