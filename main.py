@@ -2,6 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from typing import Optional
+from database import connect
 
 console = Console()
 
@@ -11,7 +12,7 @@ app = typer.Typer()
 def start():
     typer.secho(f'''Welcome to Library CLI!\n\n
         You can execute command '--help' to see the possible commands''', fg=typer.colors.GREEN)
-    # TODO: connect to database
+    connect()
 
 # This is how you can get arguments, here username is a mandatory argument for this command.
 @app.command("sign_up")
@@ -19,7 +20,7 @@ def sign_up(username: str):
     typer.echo(f"Nice that you are signing up!")
     # TODO: Add user with name {username} to database table
 
-# Example function for tables, you can add more columns/row.
+# Example function for tables, you can add more columns/row
 @app.command("display_table")
 def display_table():
     table = Table(show_header=True, header_style="bold blue")
