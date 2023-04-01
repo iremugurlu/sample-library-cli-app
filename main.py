@@ -2,7 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from typing import Optional
-from database import connect
+from database import *
 
 console = Console()
 
@@ -16,9 +16,25 @@ def start():
 
 # This is how you can get arguments, here username is a mandatory argument for this command.
 @app.command("sign_up")
-def sign_up(username: str):
+def sign_up(username: str, password: int):
     typer.echo(f"Nice that you are signing up!")
-    # TODO: Add user with name {username} to database table
+    singUp(username, password)
+    
+# This is to sign in the user
+@app.command("sign_in")
+def sign_in(username: str, password: int):
+    typer.echo(f"Nice that you are signing in!")
+    signIn(username, password) 
+    
+
+@app.command()
+def borrow_book():
+    pass
+    # 
+    # 
+    # 
+    # 
+    
 
 # Example function for tables, you can add more columns/row
 @app.command("display_table")

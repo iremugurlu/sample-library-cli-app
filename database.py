@@ -110,6 +110,66 @@ def connect():
             conn.close()
             print('Database connection closed.')
     
+def connect_to_db():
+    conn = None
+    try:
+        try:
+            # try to connect to database
+            params = config('database.ini','CLI_Library')
+            conn = psycopg2.connect(**params)
+		
+            # create a cursor
+            cur = conn.cursor()
+        except (Exception, psycopg2.DatabaseError) as error:
+            # if database doesn't exist, create it
+            print(error)
+            
+            
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)      
+
+def singUp(username: str, password: int):
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    cur.execute('SELECT username FROM public."user";')
+    
+    user = cur.fetchall()
+    for i in user:
+        if username == i[0]:
+            typer.secho(f"This user already exist! Try different user", fg=typer.colors.RED)
+            break
+    else:   
+        command = f'INSERT INTO "user" (username, password) VALUES (\'{username}\',\'{password}\');'
+        cur.execute(command)
+        cur.close()
+
+def signIn(username: str, password: int):
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    cur.execute('SELECT username FROM public."user";')
+    user = cur.fetchall()
+    
+    cur.execute('SELECT password FROM public."user";')
+    user_pass = cur.fetchall()
+    
+    for i,j in zip(user, user_pass):
+        if username == i[0] and password == j[0]:
+            typer.secho(f"You are signed in", fg=typer.colors.GREEN)
+            break
+    else:
+        typer.secho(f"username or password is wrong!", fg=typer.colors.RED)
+        
+            
+    
+if __name__ == '__main__':
+    connect()
+
+
+
 
 if __name__ == '__main__':
     connect()
