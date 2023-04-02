@@ -24,7 +24,13 @@ def sign_up(username: str, password: int):
 @app.command("sign_in")
 def sign_in(username: str, password: int):
     typer.echo(f"Nice that you are signing in!")
-    signIn(username, password) 
+    signIn(username, password)
+
+@app.command("search_by_name")
+def search_by_name(name : str) :
+    typer.echo(f"lets search about {name}")
+    Search_by_name(name)
+
     
 
 @app.command()

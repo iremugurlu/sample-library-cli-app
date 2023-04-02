@@ -4,6 +4,7 @@ from rich.console import Console
 from rich.table import Table
 
 from config import config
+console = Console()
 
 
 def connect():
@@ -163,8 +164,52 @@ def signIn(username: str, password: int):
     else:
         typer.secho(f"username or password is wrong!", fg=typer.colors.RED)
         
-            
-    
+
+def Search_by_name(name : str ) : 
+    try : 
+       params = config('database.ini','CLI_Library')
+       conn = psycopg2.connect(**params)
+       conn.autocommit = True
+       cur = conn.cursor()
+       cur.execute("SELECT books.id,name,author_name ,pages ,genre.title FROM books JOIN book_author on books.id = book_author.book_id JOIN author ON book_author.author_id = author.id JOIN genre ON books.id = genre.genre_id order by name,pages ; ")
+       book_names = cur.fetchone()
+       for i in book_names:
+         if i[1] == name : 
+             
+            table = Table(show_header=True, header_style="bold blue")
+            table.add_column("#", style="dim", width=10)
+            table.add_column("BookID", style="dim", min_width=10, justify=True)
+            table.add_column("Name", style="dim", min_width=10, justify=True)
+            table.add_column("Author", style="dim", min_width=10, justify=True)
+            table.add_column("Pages", style="dim", min_width=10, justify=True)
+            table.add_column("Gener", style="dim", min_width=10, justify=True)
+            table.add_column("Availabili__", style="dim", min_width=10, justify=True)    
+            table.add_row(f"{i[0]}", f"{i[0]}",f"{i[1]}",f"{i[2]}",f"{i[3]}",f"{i[4]}","True")
+            console.print(table)
+    except : 
+        params = config('database.ini','CLI_Library')
+        conn = psycopg2.connect(**params)
+        conn.autocommit = True
+        cur = conn.cursor()
+        cur.execute("SELECT books.id,name,author_name ,pages ,genre.title FROM books JOIN book_author on books.id = book_author.book_id JOIN author ON book_author.author_id = author.id JOIN genre ON books.id = genre.genre_id order by name,pages ; ")
+        book_names = cur.fetchmany()
+        for i in book_names:
+            if i[1] != name : 
+             print("sorry we dont have this book")
+             table = Table(show_header=True, header_style="bold blue")
+             table.add_column("#", style="dim", width=10)
+             table.add_column("BookID", style="dim", min_width=10, justify=True)
+             table.add_column("Name", style="dim", min_width=10, justify=True)
+             table.add_column("Author", style="dim", min_width=10, justify=True)
+             table.add_column("Pages", style="dim", min_width=10, justify=True)
+             table.add_column("Gener", style="dim", min_width=10, justify=True)
+             table.add_column("Availabili__", style="dim", min_width=10, justify=True)    
+             table.add_row("--", "--","--","--","--","--","False")
+             console.print(table)
+
+
+
+         
 if __name__ == '__main__':
     connect()
 
