@@ -205,7 +205,6 @@ def addBook(bookname: str, author: str, pages: int, genre: str):
                     cur.execute(commandd)
                     break            
             else:
-                print('hello')
                 commandd = f'''INSERT INTO "books" (name,pages) VALUES (\'{bookname}\',\'{pages}\');
                 INSERT INTO "author" (author_name) VALUES (\'{author}\');
                 INSERT INTO "book_author" (book_id, author_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT id FROM "author" WHERE author_name = \'{author}\'));
@@ -225,13 +224,66 @@ def addBook(bookname: str, author: str, pages: int, genre: str):
 
             else:
                 cur.execute(f'INSERT INTO "genre" (title) VALUES (\'{genre}\');')
-            
+                command = f'INSERT INTO "genre_book" (book_id, genre_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT genre_id FROM "genre" WHERE title = \'{genre}\'));'
+                cur.execute(command)
         except psycopg2.DatabaseError as e:
             print(e)
+
             
         
     except (SyntaxError, ValueError, psycopg2.DatabaseError) as e:
         typer.echo(f"Could not sign in", e)
+        
+        
+def borrowBook(id: int):
+    
+    username = input("Username: ")
+    password = int(input("Password: "))
+    
+    if signIn(username, password):
+    
+        params = config('database.ini','CLI_Library')
+        conn = psycopg2.connect(**params)
+        conn.autocommit = True
+        cur = conn.cursor()
+        
+        cur.execute(f'SELECT book_id FROM inventory;')
+        available_books = cur.fetchall()
+        for book in available_books:
+            if book[0] == id:
+                print(book[0])
+                command = f'''DELETE FROM inventory WHERE book_id = \'{id}\';
+                INSERT INTO borrowed_books (book_id, username) VALUES (\'{id}\', \'{username}\');'''.split('\n')
+                
+                for i in command:
+                    cur.execute(i)
+                typer.secho(f'You borrowed book {id}!')
+                break
+        else:
+            typer.secho('This book is not available')
+            
+    # available_books = cur.fetchall()
+    
+    
+        
+    
+    
+    # books = []
+    # for bb in bb_books:
+    #     cur.execute(f'SELECT book_id FROM inventory WHERE inventory_id = \'{bb[0]}\';')
+    #     a = cur.fetchone()
+    #     books.append(a)
+    
+    # for book in books:
+    #     if book[0] == id:
+    #         cur.execute(f'INSERT INTO borrowed')
+    
+    # available_books = cur.fetchall()
+    
+    # for book in available_books:
+    #     if book[0] == id:
+    #         command = f'''DELETE FROM inventory WHERE book_id = \'{id}\');'''
+    
    
                     
         
@@ -239,4 +291,5 @@ def addBook(bookname: str, author: str, pages: int, genre: str):
             
     
 if __name__ == '__main__':
-    connect()
+    # connect()
+    borrowBook(7)

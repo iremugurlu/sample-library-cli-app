@@ -10,7 +10,7 @@ CREATE TABLE "user" (
 
 CREATE TABLE "books" (
 	"id" serial NOT NULL,
-	"name" TEXT NOT NULL,
+	"name" varchar(255) NOT NULL,
 	"pages" bigint NOT NULL,
 	CONSTRAINT "books_pk" PRIMARY KEY ("id")
 ) WITH (
@@ -59,7 +59,7 @@ CREATE TABLE "genre_book" (
 
 CREATE TABLE "borrowed_books" (
 	"bb_id" serial NOT NULL,
-	"inventory_id" bigint NOT NULL,
+	"book_id" bigint NOT NULL,
 	"username" varchar(255) NOT NULL,
 	CONSTRAINT "borrowed_books_pk" PRIMARY KEY ("bb_id")
 ) WITH (
@@ -69,10 +69,8 @@ CREATE TABLE "borrowed_books" (
 
 
 CREATE TABLE "inventory" (
-	"inventory_id" serial NOT NULL,
 	"book_id" bigint NOT NULL,
-	"last_update" DATE NOT NULL,
-	CONSTRAINT "inventory_pk" PRIMARY KEY ("inventory_id")
+	"last_update" DATE NOT NULL
 ) WITH (
   OIDS=FALSE
 );
@@ -111,7 +109,7 @@ ALTER TABLE "book_author" ADD CONSTRAINT "book_author_fk1" FOREIGN KEY ("author_
 ALTER TABLE "genre_book" ADD CONSTRAINT "genre_book_fk0" FOREIGN KEY ("book_id") REFERENCES "books"("id");
 ALTER TABLE "genre_book" ADD CONSTRAINT "genre_book_fk1" FOREIGN KEY ("genre_id") REFERENCES "genre"("genre_id");
 
-ALTER TABLE "borrowed_books" ADD CONSTRAINT "borrowed_books_fk0" FOREIGN KEY ("inventory_id") REFERENCES "inventory"("inventory_id");
+ALTER TABLE "borrowed_books" ADD CONSTRAINT "borrowed_books_fk0" FOREIGN KEY ("book_id") REFERENCES "books"("id");
 ALTER TABLE "borrowed_books" ADD CONSTRAINT "borrowed_books_fk1" FOREIGN KEY ("username") REFERENCES "user"("username");
 
 ALTER TABLE "inventory" ADD CONSTRAINT "inventory_fk0" FOREIGN KEY ("book_id") REFERENCES "books"("id");
@@ -121,6 +119,17 @@ ALTER TABLE "fav_books" ADD CONSTRAINT "fav_books_fk1" FOREIGN KEY ("username") 
 
 ALTER TABLE "read_books" ADD CONSTRAINT "read_books_fk0" FOREIGN KEY ("username") REFERENCES "user"("username");
 ALTER TABLE "read_books" ADD CONSTRAINT "read_books_fk1" FOREIGN KEY ("bb_id") REFERENCES "borrowed_books"("bb_id");
+
+
+
+
+
+
+
+
+
+
+
 
 
 INSERT INTO "user" (username, password) VALUES ('john2', '12345');

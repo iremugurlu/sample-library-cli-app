@@ -46,6 +46,11 @@ def add_book():
         
     else:
         typer.secho(f"Please sign in again!", fg=typer.colors.RED)
+
+@app.command("borrow_book")
+def borrow_book(id: int):
+    typer.secho(f"Sign in first to add borrow book", fg=typer.colors.GREEN)
+    borrowBook(id)
     
     
 
