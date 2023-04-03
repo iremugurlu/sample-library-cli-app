@@ -2,6 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from typing import Optional
+from database import *
 
 console = Console()
 
@@ -11,15 +12,40 @@ app = typer.Typer()
 def start():
     typer.secho(f'''Welcome to Library CLI!\n\n
         You can execute command '--help' to see the possible commands''', fg=typer.colors.GREEN)
-    # TODO: connect to database
+    connect()
 
 # This is how you can get arguments, here username is a mandatory argument for this command.
 @app.command("sign_up")
-def sign_up(username: str):
+def sign_up(username: str, password: int):
     typer.echo(f"Nice that you are signing up!")
-    # TODO: Add user with name {username} to database table
+    singUp(username, password)
+    
+# This is to sign in the user
+@app.command("sign_in")
+def sign_in(username: str, password: int):
+    typer.echo(f"Nice that you are signing in!")
+    signIn(username, password)
 
-# Example function for tables, you can add more columns/row.
+@app.command("search_by_name")
+def search_by_name(name : str) :
+    typer.echo(f"lets search about {name}")
+    Search_by_name(name)
+
+@app.command("search_by_author")
+def search_by_author(author : str):
+    typer.echo(f"lets search using author {author}")
+    Search_by_author(author)
+
+@app.command()
+def borrow_book():
+    pass
+    # 
+    # 
+    # 
+    # 
+    
+
+# Example function for tables, you can add more columns/row
 @app.command("display_table")
 def display_table():
     table = Table(show_header=True, header_style="bold blue")
