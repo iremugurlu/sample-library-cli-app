@@ -6,7 +6,7 @@ import datetime
 
 from config import config
 
-
+console = Console()
 def connect():
     conn = None
     try:
@@ -261,6 +261,92 @@ def borrowBook(id: int):
                 break
         else:
             typer.secho('This book is not available')
+
+
+
+def Search_by_name(name : str ) : 
+    try : 
+       params = config('database.ini','CLI_Library')
+       conn = psycopg2.connect(**params)
+       conn.autocommit = True
+       cur = conn.cursor()
+    
+       cur.execute(f"SELECT books.id,name,author_name ,pages ,genre.title FROM books JOIN book_author on books.id = book_author.book_id JOIN author ON book_author.author_id = author.id JOIN genre ON books.id = genre.genre_id  WHERE name= \'{name}\' order by name,pages ; ")
+       book_names = cur.fetchall()
+       for i in book_names:
+            if i[1] == name : 
+                table = Table(show_header=True, header_style="bold blue")
+                table.add_column("#", style="dim", width=10)
+                table.add_column("BookID", style="dim", min_width=10, justify=True)
+                table.add_column("Name", style="dim", min_width=10, justify=True)
+                table.add_column("Author", style="dim", min_width=10, justify=True)
+                table.add_column("Pages", style="dim", min_width=10, justify=True)
+                table.add_column("Gener", style="dim", min_width=10, justify=True)
+                table.add_column("Availabili__", style="dim", min_width=10, justify=True)    
+                table.add_row(f"{i[0]}", f"{i[0]}",f"{i[1]}",f"{i[2]}",f"{i[3]}",f"{i[4]}","True")
+                console.print(table)
+                break
+       else:
+         typer.secho(f"the name is wrong", fg=typer.colors.RED)
+         raise Exception
+            
+    except :
+             table = Table(show_header=True, header_style="bold blue")
+             table.add_column("#", style="dim", width=10)
+             table.add_column("BookID", style="dim", min_width=10, justify=True)
+             table.add_column("Name", style="dim", min_width=10, justify=True)
+             table.add_column("Author", style="dim", min_width=10, justify=True)
+             table.add_column("Pages", style="dim", min_width=10, justify=True)
+             table.add_column("Gener", style="dim", min_width=10, justify=True)
+             table.add_column("Availabili__", style="dim", min_width=10, justify=True)    
+             table.add_row("--", "--","--","--","--","--","False")
+             console.print(table)
+        
+    
+
+
+
+
+             
+
+def Search_by_author(author : str) : 
+    try : 
+       params = config('database.ini','CLI_Library')
+       conn = psycopg2.connect(**params)
+       conn.autocommit = True
+       cur = conn.cursor()
+       cur.execute(f"SELECT books.id,name ,author_name ,pages ,genre.title FROM books JOIN book_author ON books.id = book_author.book_id JOIN author ON book_author.author_id = author.id JOIN genre ON books.id = genre.genre_id where author_name =\'{author}\'  order by name,pages   ;")
+       aurthor_name = cur.fetchmany()
+       for i in aurthor_name:
+         if i[2] == author : 
+            table = Table(show_header=True, header_style="bold blue")
+            table.add_column("#", style="dim", width=10)
+            table.add_column("BookID", style="dim", min_width=10, justify=True)
+            table.add_column("Name", style="dim", min_width=10, justify=True)
+            table.add_column("Author", style="dim", min_width=10, justify=True)
+            table.add_column("Pages", style="dim", min_width=10, justify=True)
+            table.add_column("Gener", style="dim", min_width=10, justify=True)
+            table.add_column("Availabili__", style="dim", min_width=10, justify=True)    
+            table.add_row(f"{i[0]}", f"{i[0]}",f"{i[1]}",f"{i[2]}",f"{i[3]}",f"{i[4]}","True")
+            console.print(table)
+            break
+       else:
+            typer.secho(f"the name is wrong", fg=typer.colors.RED)
+            raise Exception
+
+    except : 
+             table = Table(show_header=True, header_style="bold blue")
+             table.add_column("#", style="dim", width=10)
+             table.add_column("BookID", style="dim", min_width=10, justify=True)
+             table.add_column("Name", style="dim", min_width=10, justify=True)
+             table.add_column("Author", style="dim", min_width=10, justify=True)
+             table.add_column("Pages", style="dim", min_width=10, justify=True)
+             table.add_column("Gener", style="dim", min_width=10, justify=True)
+             table.add_column("Availabili__", style="dim", min_width=10, justify=True)    
+             table.add_row("--", "--","--","--","--","--","False")
+             console.print(table)
+        
+
             
     # available_books = cur.fetchall()
     

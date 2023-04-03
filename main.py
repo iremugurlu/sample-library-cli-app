@@ -51,7 +51,16 @@ def add_book():
 def borrow_book(id: int):
     typer.secho(f"Sign in first to add borrow book", fg=typer.colors.GREEN)
     borrowBook(id)
-    
+@app.command("search_by_name")
+def search_by_name(name : str) :
+    typer.echo(f"lets search about {name}")
+    Search_by_name(name)
+
+@app.command("search_by_author")
+def search_by_author(author : str):
+    typer.echo(f"lets search using author {author}")
+    Search_by_author(author)
+
     
 
 # Example function for tables, you can add more columns/row
