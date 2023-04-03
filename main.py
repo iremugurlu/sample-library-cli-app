@@ -27,13 +27,26 @@ def sign_in(username: str, password: int):
     signIn(username, password) 
     
 
-@app.command()
-def borrow_book():
-    pass
-    # 
-    # 
-    # 
-    # 
+@app.command("add_book")
+def add_book():
+    """Adds a new book to the library"""
+    
+    typer.secho(f"Sign in first to add a new book", fg=typer.colors.GREEN)
+    username = input("Enter username: ")
+    password = int(input("Enter password: "))
+    if signIn(username, password):
+        typer.secho(f"Please enter the required book info to add!", fg=typer.colors.BLUE)
+        name = input("Name: ")
+        author = input("Author: ")
+        pages = int(input("# Pages: "))
+        genre = input("Genres: ")
+        
+        addBook(name, author, pages, genre)
+        typer.secho(f"Seccuessfully added book!", fg=typer.colors.GREEN)
+        
+    else:
+        typer.secho(f"Please sign in again!", fg=typer.colors.RED)
+    
     
 
 # Example function for tables, you can add more columns/row

@@ -2,6 +2,7 @@ import psycopg2
 import typer
 from rich.console import Console
 from rich.table import Table
+import datetime
 
 from config import config
 
@@ -146,32 +147,96 @@ def singUp(username: str, password: int):
         cur.close()
 
 def signIn(username: str, password: int):
-    params = config('database.ini','CLI_Library')
-    conn = psycopg2.connect(**params)
-    conn.autocommit = True
-    cur = conn.cursor()
-    cur.execute('SELECT username FROM public."user";')
-    user = cur.fetchall()
-    
-    cur.execute('SELECT password FROM public."user";')
-    user_pass = cur.fetchall()
-    
-    for i,j in zip(user, user_pass):
-        if username == i[0] and password == j[0]:
-            typer.secho(f"You are signed in", fg=typer.colors.GREEN)
-            break
-    else:
-        typer.secho(f"username or password is wrong!", fg=typer.colors.RED)
+    try:
+        params = config('database.ini','CLI_Library')
+        conn = psycopg2.connect(**params)
+        conn.autocommit = True
+        cur = conn.cursor()
+        cur.execute('SELECT username FROM public."user";')
+        user = cur.fetchall()
+        cur.execute('SELECT password FROM public."user";')
+        user_pass = cur.fetchall()
+        
+        for i,j in zip(user, user_pass):
+            if username == i[0] and password == j[0]:
+                typer.secho(f"You are signed in", fg=typer.colors.GREEN)
+                success = True
+                break
+                
+        else:
+            typer.secho(f"username or password is wrong!", fg=typer.colors.RED)
+            success = False
+        
+        return success
+    except ValueError:
+        print('Please Enter valid information')
+
+def addBook(bookname: str, author: str, pages: int, genre: str):    
+    try:
+        try:
+            params = config('database.ini','CLI_Library')
+            conn = psycopg2.connect(**params)
+            conn.autocommit = True
+            cur = conn.cursor()
+            
+            command_query = f''' SELECT name FROM books;
+            SELECT author_name FROM author;'''.split('\n')
+            
+            queried_data = []
+            for i in command_query:
+                cur.execute(i)
+                queried_data.append(cur.fetchall())
+            
+            
+            
+            
+            
+            for i,j in zip(*queried_data):
+                if i[0] == bookname and j[0] == author:
+                    cur.execute(f'SELECT id FROM books WHERE name = \'{bookname}\'')
+                    book_id = cur.fetchone()
+                    command = f'''INSERT INTO inventory (book_id, last_update) VALUES (\'{int(book_id[0])}\',\'{datetime.date.today()}\');'''
+                    cur.execute(command)
+                    break
+                elif i[0] != bookname and j[0] == author:
+                    commandd = f'''INSERT INTO "books" (name,pages) VALUES (\'{bookname}\',\'{pages}\');
+                    INSERT INTO "book_author" (book_id, author_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT id FROM "author" WHERE author_name = \'{author}\'));
+                    INSERT INTO "inventory" (book_id, last_update) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}'), \'{datetime.date.today()}\');'''
+                    cur.execute(commandd)
+                    break            
+            else:
+                print('hello')
+                commandd = f'''INSERT INTO "books" (name,pages) VALUES (\'{bookname}\',\'{pages}\');
+                INSERT INTO "author" (author_name) VALUES (\'{author}\');
+                INSERT INTO "book_author" (book_id, author_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT id FROM "author" WHERE author_name = \'{author}\'));
+                INSERT INTO "inventory" (book_id, last_update) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}'), \'{datetime.date.today()}\');'''
+                cur.execute(commandd)
+            
+            command = f'SELECT title FROM genre;'
+            cur.execute(command)
+            genre_title = cur.fetchall()
+            
+            
+            for title in genre_title:
+                if title[0] == genre:
+                    command = f'INSERT INTO "genre_book" (book_id, genre_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT genre_id FROM "genre" WHERE title = \'{genre}\'));'
+                    cur.execute(command)
+                    break
+
+            else:
+                cur.execute(f'INSERT INTO "genre" (title) VALUES (\'{genre}\');')
+            
+        except psycopg2.DatabaseError as e:
+            print(e)
+            
+        
+    except (SyntaxError, ValueError, psycopg2.DatabaseError) as e:
+        typer.echo(f"Could not sign in", e)
+   
+                    
+        
         
             
     
 if __name__ == '__main__':
     connect()
-
-
-
-
-if __name__ == '__main__':
-    connect()
-
-
