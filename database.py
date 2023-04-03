@@ -271,7 +271,11 @@ def Search_by_name(name : str ) :
        conn.autocommit = True
        cur = conn.cursor()
     
-       cur.execute(f"SELECT books.id,name,author_name ,pages ,genre.title FROM books JOIN book_author on books.id = book_author.book_id JOIN author ON book_author.author_id = author.id JOIN genre ON books.id = genre.genre_id  WHERE name= \'{name}\' order by name,pages ; ")
+       cur.execute(f"""SELECT books.id,name,author_name ,pages ,genre.title FROM books 
+                       JOIN book_author on books.id = book_author.book_id 
+                       JOIN author ON book_author.author_id = author.id 
+                       JOIN genre ON books.id = genre.genre_id  
+                       WHERE name= \'{name}\' order by name,pages ; """)
        book_names = cur.fetchall()
        for i in book_names:
             if i[1] == name : 
@@ -308,14 +312,18 @@ def Search_by_name(name : str ) :
 
 
              
-#sdsdsdf
+
 def Search_by_author(author : str) : 
     try : 
        params = config('database.ini','CLI_Library')
        conn = psycopg2.connect(**params)
        conn.autocommit = True
        cur = conn.cursor()
-       cur.execute(f"SELECT books.id,name ,author_name ,pages ,genre.title FROM books JOIN book_author ON books.id = book_author.book_id JOIN author ON book_author.author_id = author.id JOIN genre ON books.id = genre.genre_id where author_name =\'{author}\'  order by name,pages   ;")
+       cur.execute(f"""SELECT books.id,name ,author_name ,pages ,genre.title FROM books
+                        JOIN book_author ON books.id = book_author.book_id 
+                        JOIN author ON book_author.author_id = author.id 
+                        JOIN genre ON books.id = genre.genre_id 
+                        where author_name =\'{author}\'  order by name,pages   ;""")
        aurthor_name = cur.fetchmany()
        for i in aurthor_name:
          if i[2] == author : 
@@ -347,7 +355,43 @@ def Search_by_author(author : str) :
              console.print(table)
         
 
-            
+
+def Recently_added():
+       
+       params = config('database.ini','CLI_Library')
+       conn = psycopg2.connect(**params)
+       conn.autocommit = True
+       cur = conn.cursor()
+       cur.execute("""SELECT books.id,name ,author_name ,pages ,genre.title FROM books 
+                    JOIN book_author ON books.id = book_author.book_id 
+                    JOIN author ON book_author.author_id = author.id 
+                    JOIN genre ON books.id = genre.genre_id  
+                    ORDER BY id DESC LIMIT 5   ;""")
+       books = cur.fetchall()
+       x = len(books)
+       i = 0
+       my_result = [i for i in books]
+       ii = 0
+       table = Table(show_header=True, header_style="bold blue")
+       table.add_column("#", style="dim", width=10)
+       table.add_column("BookID", style="dim", min_width=10, justify=True)
+       table.add_column("Name", style="dim", min_width=10, justify=True)
+       table.add_column("Author", style="dim", min_width=10, justify=True)
+       table.add_column("Pages", style="dim", min_width=10, justify=True)
+       table.add_column("Gener", style="dim", min_width=10, justify=True)
+       table.add_column("Availabili__", style="dim", min_width=10, justify=True)
+       while ii < x : 
+        table.add_row(f"{my_result[ii][0]}", f"{my_result[ii][0]}",f"{my_result[ii][1]}",f"{my_result[ii][2]}",f"{my_result[ii][3]}",f"{my_result[ii][4]}","True")
+        ii += 1
+       console.print(table)
+        
+
+
+
+
+           
+
+           
     # available_books = cur.fetchall()
     
     

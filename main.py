@@ -61,6 +61,12 @@ def search_by_author(author : str):
     typer.echo(f"lets search using author {author}")
     Search_by_author(author)
 
+@app.command("recently_added")
+def recently_added():
+        typer.echo(f"lets see which book recently added")
+        Recently_added()
+
+
     
 
 # Example function for tables, you can add more columns/row
