@@ -31,7 +31,10 @@ def search_by_name(name : str) :
     typer.echo(f"lets search about {name}")
     Search_by_name(name)
 
-    
+@app.command("search_by_author")
+def search_by_author(author : str):
+    typer.echo(f"lets search using author {author}")
+    Search_by_author(author)
 
 @app.command()
 def borrow_book():
