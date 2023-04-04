@@ -68,24 +68,7 @@ def fav_book(id: int):
     typer.secho(f"Sign in first to mark book as read", fg=typer.colors.GREEN)
     favBook(id)
 
-@app.command("search_by_name")
-def search_by_name(name : str) :
-    typer.echo(f"lets search about {name}")
-    Search_by_name(name)
 
-@app.command("search_by_author")
-def search_by_author(author : str):
-    typer.echo(f"lets search using author {author}")
-    Search_by_author(author)
-
-@app.command("recently_added")
-def recently_added():
-        typer.echo(f"lets see which book recently added")
-        Recently_added()
-
-
-    
-# Example function for tables, you can add more columns/row
 @app.command("my_books")
 def my_books():
     try:
@@ -104,7 +87,23 @@ def my_books():
     except (ValueError,AttributeError) as e:
         typer.echo(f'Sign in again!', e)
 
+@app.command("search_by_name")
+def search_by_name(name : str) :
+    typer.echo(f"lets search about {name}")
+    Search_by_name(name)
 
+@app.command("search_by_author")
+def search_by_author(author : str):
+    typer.echo(f"lets search using author {author}")
+    Search_by_author(author)
+
+@app.command("recently_added")
+def recently_added():
+        typer.echo(f"lets see which book recently added")
+        Recently_added()
+
+
+# Example function for tables, you can add more columns/row
 def display_table(books):
 
     table = Table(show_header=True, header_style="bold blue")
