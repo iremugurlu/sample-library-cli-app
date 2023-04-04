@@ -49,22 +49,59 @@ def add_book():
 
 @app.command("borrow_book")
 def borrow_book(id: int):
-    typer.secho(f"Sign in first to add borrow book", fg=typer.colors.GREEN)
+    typer.secho(f"Sign in first to borrow book", fg=typer.colors.GREEN)
     borrowBook(id)
     
+@app.command("return_book")
+def return_book(id: int):
+    typer.secho(f"Sign in first to return book", fg=typer.colors.GREEN)
+    returnBook(id)
     
-
+@app.command("mark_read")
+def mark_read(id: int):
+    typer.secho(f"Sign in first to mark book as read", fg=typer.colors.GREEN)
+    markRead(id)
+    
+@app.command("fav_book")
+def fav_book(id: int):
+    typer.secho(f"Sign in first to mark book as read", fg=typer.colors.GREEN)
+    favBook(id)
+    
 # Example function for tables, you can add more columns/row
-@app.command("display_table")
-def display_table():
-    table = Table(show_header=True, header_style="bold blue")
-    table.add_column("Column 1", style="dim", width=10)
-    table.add_column("Column 2", style="dim", min_width=10, justify=True)
-    
-    table.add_row('Value 1', 'Value 2')
-    table.add_row('Value 3', 'Value 4')
-    table.add_row('Value 5', 'Value 6')
+@app.command("my_books")
+def my_books():
+    try:
+        username = input("Username: ")
+        password = int(input("Password: "))
+        
+        if signIn(username, password):
+            books = readBooks(username)
+            typer.secho(f"BOOKS YOU READ")
+            display_table(books)
+            books2 = favoriteBooks(username)
+            typer.secho(f"YOUR FAVORITE BOOKS")
+            display_table(books2)
+        else:
+            typer.secho(f"Sign in again!")
+    except (ValueError,AttributeError) as e:
+        typer.echo(f'Sign in again!', e)
 
+
+def display_table(books):
+
+    table = Table(show_header=True, header_style="bold blue")
+   
+    table.add_column("Book ID", style="dim", min_width=10, justify=True)
+    table.add_column("Book Name", style="dim", min_width=10, justify=True)
+    table.add_column("Author", style="dim", min_width=10, justify=True)
+    table.add_column("Pages", style="dim", min_width=10, justify=True)
+    table.add_column("Genre", style="dim", min_width=10, justify=True)
+    table.add_column("Availability", style="dim", min_width=10, justify=True)
+
+    
+    for book in books:
+        table.add_row(str(book[0]),book[1], book[2], str(book[3]), book[4], str(book[5]))
+    
     console.print(table)
 
 if __name__ == "__main__":

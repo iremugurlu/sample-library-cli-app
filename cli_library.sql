@@ -69,8 +69,10 @@ CREATE TABLE "borrowed_books" (
 
 
 CREATE TABLE "inventory" (
+    "inventory_id" serial NOT NULL,
 	"book_id" bigint NOT NULL,
-	"last_update" DATE NOT NULL
+	"last_update" DATE NOT NULL,
+    CONSTRAINT "inventory_pk" PRIMARY KEY ("inventory_id")
 ) WITH (
   OIDS=FALSE
 );
@@ -91,7 +93,7 @@ CREATE TABLE "fav_books" (
 CREATE TABLE "read_books" (
 	"mark_id" serial NOT NULL,
 	"username" varchar(255) NOT NULL,
-	"bb_id" serial NOT NULL,
+	"book_id" bigint NOT NULL,
 	CONSTRAINT "read_books_pk" PRIMARY KEY ("mark_id")
 ) WITH (
   OIDS=FALSE
@@ -118,7 +120,7 @@ ALTER TABLE "fav_books" ADD CONSTRAINT "fav_books_fk0" FOREIGN KEY ("book_id") R
 ALTER TABLE "fav_books" ADD CONSTRAINT "fav_books_fk1" FOREIGN KEY ("username") REFERENCES "user"("username");
 
 ALTER TABLE "read_books" ADD CONSTRAINT "read_books_fk0" FOREIGN KEY ("username") REFERENCES "user"("username");
-ALTER TABLE "read_books" ADD CONSTRAINT "read_books_fk1" FOREIGN KEY ("bb_id") REFERENCES "borrowed_books"("bb_id");
+ALTER TABLE "read_books" ADD CONSTRAINT "read_books_fk1" FOREIGN KEY ("book_id") REFERENCES "books"("id");
 
 
 

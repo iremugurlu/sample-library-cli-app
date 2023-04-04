@@ -28,14 +28,9 @@ def connect():
                 cur.execute("CREATE DATABASE cli_library;")
                 typer.secho(f"Database created successfully", fg=typer.colors.GREEN)
                 
-                
-                
-                
-                
             except psycopg2.Error as e:
                 # If the CREATE DATABASE statement fails or another error occurs, catch the exception and print an error message
                 typer.echo(f"The CREATE DATABASE statement failed: {e}")
-               
                 
             else:
                 params = config('database.ini','CLI_Library')
@@ -218,8 +213,9 @@ def addBook(bookname: str, author: str, pages: int, genre: str):
             
             for title in genre_title:
                 if title[0] == genre:
-                    command = f'INSERT INTO "genre_book" (book_id, genre_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT genre_id FROM "genre" WHERE title = \'{genre}\'));'
-                    cur.execute(command)
+                    pass
+                    # command = f'INSERT INTO "genre_book" (book_id, genre_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT genre_id FROM "genre" WHERE title = \'{genre}\'));'
+                    # cur.execute(command)
                     break
 
             else:
@@ -247,12 +243,15 @@ def borrowBook(id: int):
         conn.autocommit = True
         cur = conn.cursor()
         
+        
+        
         cur.execute(f'SELECT book_id FROM inventory;')
         available_books = cur.fetchall()
+        # cur.execute(f'SELECT date FROM inventory WHERE book_id = 1 FETCH ONLY
         for book in available_books:
             if book[0] == id:
                 print(book[0])
-                command = f'''DELETE FROM inventory WHERE book_id = \'{id}\';
+                command = f'''DELETE FROM inventory WHERE inventory_id IN (SELECT inventory_id FROM inventory WHERE book_id = {id} limit 1);
                 INSERT INTO borrowed_books (book_id, username) VALUES (\'{id}\', \'{username}\');'''.split('\n')
                 
                 for i in command:
@@ -284,11 +283,135 @@ def borrowBook(id: int):
     #     if book[0] == id:
     #         command = f'''DELETE FROM inventory WHERE book_id = \'{id}\');'''
     
-   
-                    
+def returnBook(id: int):
+    username = input("Username: ")
+    password = int(input("Password: "))
+
+    if signIn(username, password):
+        params = config('database.ini','CLI_Library')
+        conn = psycopg2.connect(**params)
+        conn.autocommit = True
+        cur = conn.cursor()
         
+        cur.execute(f'SELECT book_id FROM borrowed_books WHERE username = \'{username}\';')
+        borrowed_books = cur.fetchall()
         
+        for book in borrowed_books:
+            if book[0] == id:
+                command = f'''DELETE FROM borrowed_books WHERE bb_id IN (SELECT bb_id FROM borrowed_books WHERE book_id = {id} limit 1);
+                INSERT INTO "inventory" (book_id, last_update) VALUES (\'{id}\', \'{datetime.date.today()}\'); '''
+                cur.execute(command)
+                typer.secho(f'You returned book {id}!')
+                break
+        else:
+            typer.echo(f'You didn\'t borrow book {id}')
+    else:
+        typer.echo(f"Could not sign in")
             
+            
+            
+def markRead(id: int):
+    
+    try:
+        username = input("Username: ")
+        password = int(input("Password: "))
+        
+        if signIn(username, password):
+            params = config('database.ini','CLI_Library')
+            conn = psycopg2.connect(**params)
+            conn.autocommit = True
+            cur = conn.cursor()
+            
+            cur.execute(f'SELECT id FROM books;')
+            books = cur.fetchall()
+            
+            for book in books:
+                if book[0] == id:
+                    command = f'INSERT INTO read_books (username, book_id) VALUES (\'{username}\', \'{id}\');'
+                    cur.execute(command)
+                    typer.secho(f'You marked book {id} as read!')
+                    break
+            else:
+                typer.echo(f'Book {id} doesn\'t exist!')
+        else:
+            typer.echo(f"Could not sign in")
+    except (ValueError,AttributeError) as e:
+        typer.echo(f"Sign in failed",e)
+
+
+
+def favBook(id: int):
+    username = input("Username: ")
+    password = int(input("Password: "))
+    
+    if signIn(username, password):
+        params = config('database.ini','CLI_Library')
+        conn = psycopg2.connect(**params)
+        conn.autocommit = True
+        cur = conn.cursor()
+        
+        cur.execute(f'SELECT id FROM books;')
+        books = cur.fetchall()
+        
+        for book in books:
+            if book[0] == id:
+                command = f'INSERT INTO fav_books (book_id, username) VALUES (\'{id}\',\'{username}\');'
+                cur.execute(command)
+                typer.secho(f'You added book {id} to your favorites!')
+                break
+        else:
+            typer.echo(f'Book {id} doesn\'t exist!')
+    else:
+        typer.echo(f"Could not sign in")
+
+
+
+def readBooks(user: str):
+
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    
+    command = f'''SELECT DISTINCT mr.book_id, b.name, a.author_name, b.pages, g.title, count(inv.book_id) AS Availability
+        FROM read_books mr
+        INNER JOIN books b ON b.id = mr.book_id
+        RIGHT JOIN book_author ab on ab.book_id = b.id
+        LEFT JOIN author a ON a.id = ab.author_id
+        right JOIN genre_book gb on gb.book_id = b.id
+        left join genre g on g.genre_id = gb.genre_id
+        INNER JOIN inventory inv on inv.book_id = b.id
+        WHERE mr.username = '{user}'
+        GROUP BY mr.book_id,b.name,a.author_name,b.pages, g.title;'''
+    
+    cur.execute(command)
+    read_books = cur.fetchall()
+    
+    return read_books
+    
+def favoriteBooks(user: str):
+    
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    
+    command2 = f'''SELECT DISTINCT fav.book_id, b.name, a.author_name, b.pages, g.title, count(inv.book_id) AS Availability
+        FROM fav_books fav
+        INNER JOIN books b ON b.id = fav.book_id
+        RIGHT JOIN book_author ab on ab.book_id = b.id
+        LEFT JOIN author a ON a.id = ab.author_id
+        right JOIN genre_book gb on gb.book_id = b.id
+        left join genre g on g.genre_id = gb.genre_id
+        INNER JOIN inventory inv on inv.book_id = b.id
+        WHERE fav.username = '{user}'
+        GROUP BY fav.book_id,b.name,a.author_name,b.pages, g.title'''
+    
+    cur.execute(command2)
+    fav_books = cur.fetchall()
+    
+    return fav_books
+    
     
 if __name__ == '__main__':
     # connect()
