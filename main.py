@@ -72,6 +72,7 @@ def fav_book(id: int):
 @app.command("my_books")
 def my_books():
     try:
+        typer.secho(f"Sign in first to show books", fg=typer.colors.GREEN)
         username = input("Username: ")
         password = int(input("Password: "))
         
