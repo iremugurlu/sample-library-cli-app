@@ -103,6 +103,31 @@ def recently_added():
         typer.echo(f"lets see which book recently added")
         Recently_added()
 
+@app.command("statistics")
+def Statistics():
+    try :
+        typer.secho(f"Sign in first to show statistics about user", fg=typer.colors.GREEN)
+        username = input("Username: ")
+        password = int(input("Password: "))
+        
+        if signIn(username,password):
+            stats = statestics(username)
+            table = Table(show_header=True, header_style="bold blue")
+   
+            table.add_column("Statistics", style="dim", min_width=10, justify=True)
+            table.add_column("Numbers", style="dim", min_width=10, justify=True)
+            
+            names = ['Books you read', 'Authors you read', 'Genres you read', 'Total pages you read']
+            
+            for i,j in enumerate(zip(stats)):
+                table.add_row(names[i],str(*j[0]))
+                
+            console.print(table)
+            
+    
+    except (ValueError,AttributeError, psycopg2.DatabaseError) as e:
+        typer.echo(f'Sign in failed!', e)
+    
 
 # Example function for tables, you can add more columns/row
 def display_table(books):

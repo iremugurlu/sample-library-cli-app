@@ -413,6 +413,31 @@ def favoriteBooks(user: str):
     
     return fav_books
 
+def statestics(user: str):
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    
+    command = f'''SELECT COUNT(*) FROM read_books WHERE username = '{user}';,
+    SELECT COUNT(ba.author_id) FROM book_author ba
+    INNER JOIN read_books rb on rb.book_id = ba.book_id
+    WHERE username = '{user}';,
+    SELECT COUNT(gb.genre_id) FROM genre_book gb
+    INNER JOIN read_books rb on rb.book_id = gb.book_id
+    WHERE username = '{user}';,
+    SELECT CAST(SUM(b.pages) AS BIGINT) FROM books b
+    INNER JOIN read_books rb on rb.book_id = b.id
+    WHERE username = '{user}';'''.split(',')
+    
+    stats = []
+    for i in command:
+        cur.execute(i)
+        stats.append(*cur.fetchall())
+    
+    return stats
+    
+
 def Search_by_name(name : str ) : 
     try : 
        params = config('database.ini','CLI_Library')
@@ -540,5 +565,5 @@ def Recently_added():
 
     
 if __name__ == '__main__':
-    # connect()
-    borrowBook(7)
+    connect()
+   
