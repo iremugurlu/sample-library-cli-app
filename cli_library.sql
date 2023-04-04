@@ -123,17 +123,6 @@ ALTER TABLE "read_books" ADD CONSTRAINT "read_books_fk0" FOREIGN KEY ("username"
 ALTER TABLE "read_books" ADD CONSTRAINT "read_books_fk1" FOREIGN KEY ("book_id") REFERENCES "books"("id");
 
 
-
-
-
-
-
-
-
-
-
-
-
 INSERT INTO "user" (username, password) VALUES ('john2', '12345');
 INSERT INTO "user" (username, password) VALUES ('jbiever1', '4568');
 INSERT INTO "user" (username, password) VALUES ('sthomazet2', '7891');
