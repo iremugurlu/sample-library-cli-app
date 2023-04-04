@@ -387,6 +387,7 @@ def readBooks(user: str):
     cur.execute(command)
     read_books = cur.fetchall()
     
+    
     return read_books
     
 def favoriteBooks(user: str):
