@@ -652,6 +652,29 @@ def Most_favorite_books(GENRE : str):
         return most_read
 
 
+def Most_read_author():
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    command = f'''
+                   SELECT author.author_name, count(rb.book_id) FROM author
+                   LEFT JOIN book_author ON author.id = book_author.author_id
+                   LEFT JOIN read_books rb ON rb.book_id = book_author.book_id
+                   GROUP BY author_name
+                   LIMIT 3;  '''
+    
+    cur.execute(command)
+    most_read = cur.fetchall()
+    return most_read
+
+
+
+    
+    
+    
+
+
     
 if __name__ == '__main__':
     connect()
