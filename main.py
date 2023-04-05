@@ -156,10 +156,30 @@ def Statistics():
                 table.add_row(names[i],str(*j[0]))
                 
             console.print(table)
-            
+
     
     except (ValueError,AttributeError, psycopg2.DatabaseError) as e:
         typer.echo(f'Sign in failed!', e)
+
+@app.command("most_favorite_books")
+def most_read_books(genre : Optional[str]= typer.Argument("")):
+    """This command shows the user their most favorite books and how many times they read the book"""
+    books = Most_favorite_books(genre)
+    table = Table(show_header=True, header_style="bold blue")
+   
+    table.add_column("#", style="dim", min_width=10, justify=True)
+    table.add_column("Book ID", style="dim", min_width=10, justify=True)
+    table.add_column("Book Name", style="dim", min_width=10, justify=True)
+    table.add_column("Author", style="dim", min_width=10, justify=True)
+    table.add_column("Genre", style="dim", min_width=10, justify=True)
+    table.add_column("Times read", style="dim", min_width=10, justify=True)
+
+    for i,book in enumerate(books):
+        table.add_row(str(i+1),str(book[0]),book[1], book[2], book[3], str(book[4]))
+    
+    console.print(table)
+
+
     
 
 # Example function for tables, you can add more columns/row

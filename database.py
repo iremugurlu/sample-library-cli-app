@@ -612,7 +612,46 @@ def mostReadBooks(GENRE : str):
         cur.execute(command)
         most_read = cur.fetchall()
         return most_read
+
+def Most_favorite_books(GENRE : str):
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
     
+    if GENRE:
+        command = f'''SELECT fb.book_id, b.name, a.author_name, g.title, count(fb.book_id) as Number_read
+        FROM fav_books fb
+        LEFT JOIN books b ON fb.book_id = b.id
+        RIGHT JOIN book_author ab ON ab.book_id = fb.book_id
+        RIGHT JOIN author a ON a.id = ab.author_id
+        RIGHT JOIN genre_book gb ON gb.book_id = fb.book_id
+        RIGHT JOIN genre g ON g.genre_id = gb.genre_id
+        WHERE g.title = '{GENRE}'
+        GROUP BY fb.book_id, b.name, a.author_name,g.title
+        ORDER BY Number_read DESC
+        LIMIT 10;'''
+        
+        cur.execute(command)
+        most_read = cur.fetchall()
+        return most_read
+    else:
+        command = f'''SELECT fb.book_id, b.name, a.author_name, g.title, count(fb.book_id) as Number_read
+        FROM fav_books fb
+        LEFT JOIN books b ON fb.book_id = b.id
+        RIGHT JOIN book_author ab ON ab.book_id = fb.book_id
+        RIGHT JOIN author a ON a.id = ab.author_id
+        RIGHT JOIN genre_book gb ON gb.book_id = fb.book_id
+        RIGHT JOIN genre g ON g.genre_id = gb.genre_id
+        GROUP BY fb.book_id, b.name, a.author_name,g.title
+        ORDER BY Number_read DESC
+        LIMIT 10;'''
+        
+        cur.execute(command)
+        most_read = cur.fetchall()
+        return most_read
+
+
     
 if __name__ == '__main__':
     connect()
