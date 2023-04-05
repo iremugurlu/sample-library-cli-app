@@ -650,6 +650,24 @@ def Most_favorite_books(GENRE : str):
         cur.execute(command)
         most_read = cur.fetchall()
         return most_read
+    
+def mostReadGenres():
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    
+    command = f'''SELECT g.title, count(rb.book_id) FROM genre g
+    LEFT JOIN genre_book gb ON gb.genre_id = g.genre_id
+    LEFT JOIN read_books rb ON rb.book_id = gb.book_id
+    GROUP BY g.title
+    LIMIT 5;'''
+    
+    cur.execute(command)
+    most_genres = cur.fetchall()
+    
+    return most_genres
+    
 
 
     
