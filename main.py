@@ -179,6 +179,7 @@ def most_read_books(genre : Optional[str]= typer.Argument("")):
     
     console.print(table)
 
+
 @app.command("most_read_author")
 def most_read_author():
     """This command shows the user their most favorite books and how many times they read the book"""
@@ -193,6 +194,25 @@ def most_read_author():
         table.add_row(str(i+1),book[0],str(book[1]))
     
     console.print(table)
+
+@app.command("most_read_genres")
+def most_read_genres():
+    """This command shows the user their most read genres and how many times they read them"""
+    books = mostReadGenres()
+    
+    table = Table(show_header=True, header_style="bold blue")
+   
+    table.add_column("#", style="dim", min_width=10, justify=True)
+    table.add_column("Genre", style="dim", min_width=10, justify=True)
+    table.add_column("Count", style="dim", min_width=10, justify=True)
+    
+    for i,book in enumerate(books):
+        table.add_row(str(i+1),book[0],str(book[1]))
+        
+    console.print(table)
+    
+    
+
 
 
     
