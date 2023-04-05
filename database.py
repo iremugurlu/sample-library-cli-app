@@ -353,14 +353,30 @@ def favBook(id: int):
         cur.execute(f'SELECT id FROM books;')
         books = cur.fetchall()
         
-        for book in books:
-            if book[0] == id:
-                command = f'INSERT INTO fav_books (book_id, username) VALUES (\'{id}\',\'{username}\');'
-                cur.execute(command)
-                typer.secho(f'You added book {id} to your favorites!')
-                break
+        cur.execute(f'SELECT book_id, username FROM fav_books;')
+        fav_books = zip(*cur.fetchall())
+        
+        
+        fuser = []
+        fbook = []
+        for i,j in zip(*fav_books):
+            fuser.append(j)
+            fbook.append(i)
+        
+        if username in fuser and id in fbook:
+            typer.secho(f'Book {id} is already in your favorite list!', fg= typer.colors.RED)    
         else:
-            typer.echo(f'Book {id} doesn\'t exist!')
+            for book in books:
+                if book[0] == id:
+                    command = f'INSERT INTO fav_books (book_id, username) VALUES (\'{id}\',\'{username}\');'
+                    cur.execute(command)
+                    typer.secho(f'You added book {id} to your favorites!')
+                    break
+            else:
+                typer.echo(f'Book {id} doesn\'t exist!')
+            
+              
+        
     else:
         typer.echo(f"Could not sign in")
 
@@ -558,11 +574,45 @@ def Recently_added():
         table.add_row(f"{my_result[ii][0]}", f"{my_result[ii][0]}",f"{my_result[ii][1]}",f"{my_result[ii][2]}",f"{my_result[ii][3]}",f"{my_result[ii][4]}","True")
         ii += 1
        console.print(table)
+       
+def mostReadBooks(GENRE : str):
+    params = config('database.ini','CLI_Library')
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
+    
+    if GENRE:
+        command = f'''SELECT rb.book_id, b.name, a.author_name, g.title, count(rb.book_id) as Number_read
+        FROM read_books rb
+        LEFT JOIN books b ON rb.book_id = b.id
+        RIGHT JOIN book_author ab ON ab.book_id = rb.book_id
+        RIGHT JOIN author a ON a.id = ab.author_id
+        RIGHT JOIN genre_book gb ON gb.book_id = rb.book_id
+        RIGHT JOIN genre g ON g.genre_id = gb.genre_id
+        WHERE g.title = '{GENRE}'
+        GROUP BY rb.book_id, b.name, a.author_name,g.title
+        ORDER BY Number_read DESC
+        LIMIT 10;'''
         
-
-
-
-
+        cur.execute(command)
+        most_read = cur.fetchall()
+        return most_read
+    else:
+        command = f'''SELECT rb.book_id, b.name, a.author_name, g.title, count(rb.book_id) as Number_read
+        FROM read_books rb
+        LEFT JOIN books b ON rb.book_id = b.id
+        RIGHT JOIN book_author ab ON ab.book_id = rb.book_id
+        RIGHT JOIN author a ON a.id = ab.author_id
+        RIGHT JOIN genre_book gb ON gb.book_id = rb.book_id
+        RIGHT JOIN genre g ON g.genre_id = gb.genre_id
+        GROUP BY rb.book_id, b.name, a.author_name,g.title
+        ORDER BY Number_read DESC
+        LIMIT 10;'''
+        
+        cur.execute(command)
+        most_read = cur.fetchall()
+        return most_read
+    
     
 if __name__ == '__main__':
     connect()
