@@ -38,7 +38,7 @@ The primary goal of CLI is to allow the developer to create commands quickly and
 
 
 ## Credits
-
+Mentor: [@iremugurlu](https://github.com/iremugurlu)
 - [@abdullahalzaghir](https://github.com/abdullahalzaghir)
 - [@Mohammadfalah2400](https://github.com/Mohammadfalah2400)
 
