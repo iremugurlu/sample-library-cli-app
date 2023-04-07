@@ -8,7 +8,7 @@ This is an library management system.This Library CLI app has all the features o
 
 The primary goal of CLI is to allow the developer to create commands quickly and with very little compile or runtime configuration.
 
-
+![Screenshot 2022-11-27 at 14 03 19](https://user-images.githubusercontent.com/108811520/230594419-a0a90fba-8949-436b-9ccf-c798dc762c90.png)
 
 
 
@@ -27,6 +27,7 @@ The primary goal of CLI is to allow the developer to create commands quickly and
 - Borrow Book
 - Return Book
 - Statistic
+
 
 
 ## General Requirements
