@@ -79,6 +79,7 @@ def fav_book(id: int):
 def my_books():
     """This command gives a summary of the books the user has read and their book favorite list"""
     try:
+        # sign in the user first to show the books they have read and their book favorite list
         typer.secho(f"Sign in first to show books", fg=typer.colors.GREEN)
         username = input("Username: ")
         password = int(input("Password: "))
@@ -108,10 +109,10 @@ def search_by_author(author : str):
     Search_by_author(author)
 
 @app.command("recently_added")
-def recently_added():
+def recently_added(genre : Optional[str]= typer.Argument("")):
     """This command shows the user the books that were recently added"""
     typer.echo(f"lets see which book recently added")
-    Recently_added()
+    Recently_added(genre)
 
 
 @app.command("most_read_books")
@@ -217,7 +218,7 @@ def most_read_genres():
 
     
 
-# Example function for tables, you can add more columns/row
+# function for tables, you can add more columns/row
 def display_table(books):
 
     table = Table(show_header=True, header_style="bold blue")
