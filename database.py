@@ -201,9 +201,8 @@ def addBook(bookname: str, author: str, pages: int, genre: str):
             
             for title in genre_title:
                 if title[0] == genre:
-                    pass
-                    # command = f'INSERT INTO "genre_book" (book_id, genre_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT genre_id FROM "genre" WHERE title = \'{genre}\'));'
-                    # cur.execute(command)
+                    command = f'INSERT INTO "genre_book" (book_id, genre_id) VALUES ((SELECT id FROM "books" WHERE name = \'{bookname}\'), (SELECT genre_id FROM "genre" WHERE title = \'{genre}\'));'
+                    cur.execute(command)
                     break
 
             else:
